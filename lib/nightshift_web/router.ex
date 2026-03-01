@@ -1,6 +1,8 @@
 defmodule NightshiftWeb.Router do
   use NightshiftWeb, :router
 
+  import Oban.Web.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -39,6 +41,22 @@ defmodule NightshiftWeb.Router do
 
       live_dashboard "/dashboard", metrics: NightshiftWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+
+    scope "/" do
+      pipe_through :browser
+
+      oban_dashboard("/oban")
+    end
+  end
+
+  if Application.compile_env(:nightshift, :dev_routes) do
+    import AshAdmin.Router
+
+    scope "/admin" do
+      pipe_through :browser
+
+      ash_admin "/"
     end
   end
 end

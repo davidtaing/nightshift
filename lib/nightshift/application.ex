@@ -12,11 +12,16 @@ defmodule Nightshift.Application do
       Nightshift.Repo,
       {Ecto.Migrator,
        repos: Application.fetch_env!(:nightshift, :ecto_repos), skip: skip_migrations?()},
-      {DNSCluster, query: Application.get_env(:nightshift, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Nightshift.PubSub},
+      {Oban,
+       AshOban.config(
+         Application.fetch_env!(:nightshift, :ash_domains),
+         Application.fetch_env!(:nightshift, Oban)
+       )},
       # Start a worker by calling: Nightshift.Worker.start_link(arg)
       # {Nightshift.Worker, arg},
       # Start to serve requests, typically the last entry
+      {DNSCluster, query: Application.get_env(:nightshift, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: Nightshift.PubSub},
       NightshiftWeb.Endpoint
     ]
 

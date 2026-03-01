@@ -11,7 +11,8 @@ defmodule Nightshift.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      consolidate_protocols: Mix.env() != :dev
     ]
   end
 
@@ -40,6 +41,15 @@ defmodule Nightshift.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:sourceror, "~> 1.8", only: [:dev, :test]},
+      {:oban, "~> 2.0"},
+      {:live_debugger, "~> 0.6", only: [:dev]},
+      {:oban_web, "~> 2.0"},
+      {:ash_oban, "~> 0.7"},
+      {:ash_admin, "~> 0.14"},
+      {:ash_sqlite, "~> 0.2"},
+      {:ash_phoenix, "~> 2.0"},
+      {:ash, "~> 3.0"},
       {:igniter, "~> 0.6", only: [:dev, :test]},
       {:phoenix, "~> 1.8.4"},
       {:phoenix_ecto, "~> 4.5"},
@@ -81,7 +91,7 @@ defmodule Nightshift.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      test: ["ash.setup --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind nightshift", "esbuild nightshift"],
       "assets.deploy": [
@@ -89,7 +99,8 @@ defmodule Nightshift.MixProject do
         "esbuild nightshift --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"],
+      "ash.setup": ["ash.setup", "run priv/repo/seeds.exs"]
     ]
   end
 end
