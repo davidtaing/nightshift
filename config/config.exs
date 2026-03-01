@@ -12,7 +12,7 @@ config :ash_oban, pro?: false
 config :nightshift, Oban,
   engine: Oban.Engines.Lite,
   notifier: Oban.Notifiers.PG,
-  queues: [default: 10],
+  queues: [default: 10, sync: 5, runner: 3],
   repo: Nightshift.Repo,
   plugins: [{Oban.Plugins.Cron, []}]
 
